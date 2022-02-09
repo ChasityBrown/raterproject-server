@@ -3,6 +3,7 @@
         "model": "raterprojectapi.review",
         "pk": 1,
         "fields": {
+            "player": 1,
             "game": 1,
             "review": "Great game for the entire family. My son really loves to play!",
             "rating": 4
