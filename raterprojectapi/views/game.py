@@ -1,4 +1,5 @@
 """View module for handling requests about game"""
+from unicodedata import category
 from django.http import HttpResponseServerError
 from django.core.exceptions import ValidationError
 from rest_framework.viewsets import ViewSet
@@ -43,7 +44,8 @@ class GameView(ViewSet):
         try:
             serializer = CreateGameSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            game = serializer.save()
+            game.category.add(request.data["category"])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
@@ -58,7 +60,8 @@ class GameView(ViewSet):
             game = Game.objects.get(pk=pk)
             serializer = CreateGameSerializer(game, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            game = serializer.save()
+            game.category.add(request.data["category"])
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
@@ -74,7 +77,7 @@ class GameSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Game
-        fields = ('id', 'title', 'description', 'designer', 'year_released', 'number_of_players', 'estimated_time', 'age_recommendation')
+        fields = ('id', 'title', 'description', 'designer', 'year_released', 'number_of_players', 'estimated_time', 'age_recommendation', 'category')
         depth = 1
         
 class CreateGameSerializer(serializers.ModelSerializer):
